@@ -18,28 +18,26 @@ import setuptools
 import sys
 import os
 
-if sys.version_info < (2, 6, 0):
-    sys.stderr.write("NovaLib Presently requires Python"
+if sys.version_info <= (2, 6, 0):
+    sys.stderr.write("BookOfNova Presently requires Python"
                      " 2.6.0 or greater\n")
-    sys.exit('Upgrade python because you version of it is VERY deprecated\n')
+    sys.exit('Upgrade your version of python because it is VERY deprecated\n')
 
 user = os.getuid()
 if user != 0:
     sys.exit('This program requires root privileges.'
              ' Run as root, or use "sudo"')
 
-#with open('README') as file:
-#    long_description = 'Things and Stuff, More coming...'
-
-long_description = 'Things and Stuff, More coming...'
+with open('README') as r_file:
+    long_description = r_file.read()
 
 setuptools.setup(
     name='bookofnova',
-    version='0.001',
+    version='0.002',
     author='Kevin Carter',
     author_email='kevin.carter@rackspace.com',
-    description='Nova Action Library for Compute',
-    long_description='Here is a long description, More coming...',
+    description='Nova Action Library for Openstack Compute',
+    long_description=long_description,
     license='Apache2.0',
     packages=['bookofnova'],
     url='https://github.com/cloudnull/bookofnova.git',
