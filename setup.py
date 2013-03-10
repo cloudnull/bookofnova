@@ -28,7 +28,7 @@ with open('README') as r_file:
 
 setuptools.setup(
     name='bookofnova',
-    version='0.002',
+    version='0.003',
     author='Kevin Carter',
     author_email='kevin.carter@rackspace.com',
     description='Nova Action Library for Openstack Compute',
