@@ -128,7 +128,10 @@ class Connections(object):
         else:
             read_resp = resp.read()
             conn.close()
-            json_response = json.loads(read_resp)
+            if read_resp:
+                json_response = json.loads(read_resp)
+            else:
+                json_response = read_resp
             args['nova_resp'] = json_response
             return args
 
@@ -154,7 +157,10 @@ class Connections(object):
 
         read_resp = resp.read()
         conn.close()
-        json_response = json.loads(read_resp)
+        if read_resp:
+            json_response = json.loads(read_resp)
+        else:
+            json_response = read_resp
 
         if args['os_verbose']:
             self.output(json.dumps(json_response, indent=2))
