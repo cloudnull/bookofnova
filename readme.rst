@@ -1,11 +1,12 @@
-Book Of OpenStack Nova
-######################
+Book Of Nova
+############
 :date: 2012-03-08 16:22
-:tags: Openstack, Nova Compute
+:tags: Openstack, Nova Compute, Nova
 :category: \*nix
 
-Access Nova Compute via Python
-==============================
+
+Access Openstack Nova Compute via Python
+========================================
 
 General Overview
 ----------------
@@ -23,21 +24,23 @@ Prerequisites :
   * Python => 2.6 but < 3.0
 
 
-Installation :
+Installation is simple :
 
-  Installation is simple::
+    .. code-block:: bash
 
-    git clone git://github.com/cloudnull/bookofnova.git
-    cd bookofnova
-    python setup.py install
+        git clone git://github.com/cloudnull/bookofnova.git
+        cd bookofnova
+        python setup.py install
 
-  Now in your application *Import bookofnova* and go forth and Access Openstack Nova.
+
+Now in your application *Import bookofnova* and go forth and Access Openstack Nova.
 
 
 Application Usage
 -----------------
 
-Here is some Basic Usage --
+Here is some Basic Usage :
+
 
     .. code-block:: python
 
@@ -55,7 +58,7 @@ Here is some Basic Usage --
 
     .. code-block:: python
 
-        # The "__future__" import is not required, it just plays nice for the example
+        # The "__future__" import is not required, but its nice for the example
         from __future__ import print_function
         from bookofnova import authentication, computelib, connections
         
