@@ -55,6 +55,13 @@ class Authentication(object):
             if self.m_args['os_rax_auth']:
                 self.m_args['rackspace_auth'] = True
                 self.m_args['use_https'] = True
+        else:
+            if self.m_args['os_auth_url'].startswith('https'):
+                self.m_args['use_https'] = True
+            elif 'use_https' not in self.m_args:
+                self.m_args['use_https'] = False
+            else:
+                self.m_args['use_https'] = False
 
         if self.m_args['os_apikey'] and self.m_args['os_rax_auth']:
             jsonreq = json.dumps({'auth':
@@ -68,12 +75,6 @@ class Authentication(object):
                  'passwordCredentials': {'username': self.m_args['os_user'],
                                          'password': self.m_args['os_password']
                                          }}})
-        if self.m_args['os_auth_url'].startswith('https'):
-            self.m_args['use_https'] = True
-        elif not 'use_https' in self.m_args:
-            self.m_args['use_https'] = False
-        else:
-            self.m_args['use_https'] = False
 
         strip_url = self.m_args['os_auth_url'].strip('http?s://')
         self.m_args['os_auth_url'] = strip_url
