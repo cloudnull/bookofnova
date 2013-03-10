@@ -28,10 +28,10 @@ with open('README') as r_file:
 
 setuptools.setup(
     name='bookofnova',
-    version='0.003',
+    version='0.004',
     author='Kevin Carter',
     author_email='kevin.carter@rackspace.com',
-    description='Nova Action Library for Openstack Compute',
+    description='Openstack API Library for Nova Compute',
     long_description=long_description,
     license='Apache2.0',
     packages=['bookofnova'],
