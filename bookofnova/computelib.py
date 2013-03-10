@@ -191,7 +191,7 @@ class NovaCommands(object):
         # If quantum is used, and specified, use it.
         if 'network_uuid' in pay_load:
             if pay_load['network_uuid']:
-                quantum_networks = self.list_quantum_networks()
+                quantum_networks = self.list_quantum_networks()['nova_resp']
                 if quantum_networks:
                     if not networks:
                         networks = body['server']['networks'] = []
@@ -222,7 +222,7 @@ class NovaCommands(object):
         # Use an SSH key on boot for an instance
         if 'key_name' in pay_load:
             if pay_load['key_name']:
-                keys = self.key_pair_list()
+                keys = self.key_pair_list()['nova_resp']
                 for key in keys['keypairs']:
                     if pay_load['key_name'] == key['keypair']['name']:
                         os_key = {"key_name": pay_load['key_name']}
@@ -293,7 +293,7 @@ class NovaCommands(object):
         well as the "flavor" size that you want to use.
         """
         flavors = self.flavor_list()
-        for flv in flavors['flavors']:
+        for flv in flavors['nova_resp']['flavors']:
             if flv['id'] == flavor:
                 flavor_link = flv['id']
         pay_load = json.dumps({"resize": {"flavorRef": flavor_link}})
@@ -368,6 +368,18 @@ class NovaCommands(object):
         images that were made private which will not be shown with this command.
         """
         path = '/images'
+        action = self.connection._get_action(path=path, args=self.m_args)
+        self.m_args = action
+        return self.m_args
+
+    def flavor_list_detail(self):
+        """
+        List out all of the flavors that you have available to you in the
+        Openstack API. Note that this only lists public flavors, there may be
+        flavors that were made private which will not be shown with this
+        command.
+        """
+        path = '/flavors/detail'
         action = self.connection._get_action(path=path, args=self.m_args)
         self.m_args = action
         return self.m_args
