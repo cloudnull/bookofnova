@@ -10,12 +10,13 @@ Access Nova Compute via Python
 General Overview
 ----------------
 
-This is a VERY Simple libary that I have found useful in projects where the I needed access to the NOVA API.
+This is a VERY Simple library which I have found useful in projects where I needed access to the Openstack NOVA Compute API and I did not want to bother with novaclient.
 
 
 Functions of the Library :
   * Do Openstack Nova Things
-  * Presently only supports Nova Compute, but does so for both Vanilla Openstack and the Rackspace Open Cloud
+  * Presently only supports Openstack Nova Compute, but does so for both Vanilla Openstack and the Rackspace Open Cloud
+  * Not all of the functions are built-in however the library is extendable and I would be happy to add things in as needed / requested. 
 
 
 Prerequisites :
@@ -41,7 +42,7 @@ Here is some Basic Usage --
     .. code-block:: python
 
         # Everything in this dictionary is a string, fill in the needed values.
-        m_args = {"os_user": 'YOU',
+        m_args = {"os_user": 'YOURUSERNAME',
                   "os_apikey": 'RANDOMNUMBERSANDTHINGS',
                   "os_auth_url": None,
                   "os_rax_auth": 'ALOCATION',
@@ -53,7 +54,7 @@ Here is some Basic Usage --
 
 
     .. code-block:: python
-    
+        # The "__future__" import is not required, it just plays nice for the example
         from __future__ import print_function
         from bookofnova import authentication, computelib, connections
         
@@ -75,6 +76,12 @@ Here is some Basic Usage --
         
         # now everything that you ever wanted to know from a Openstack Nova
         # query can be found in your dictionary under the key 'nova_resp'
+
+
+Get Social
+----------
+
+See ``https://github.com/cloudnull/bookofnova/issues`` for Issues or Feature requests
 
 
 License

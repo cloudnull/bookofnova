@@ -23,11 +23,6 @@ if sys.version_info <= (2, 6, 0):
                      " 2.6.0 or greater\n")
     sys.exit('Upgrade your version of python because it is VERY deprecated\n')
 
-user = os.getuid()
-if user != 0:
-    sys.exit('This program requires root privileges.'
-             ' Run as root, or use "sudo"')
-
 with open('README') as r_file:
     long_description = r_file.read()
 
