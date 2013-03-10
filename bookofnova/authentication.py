@@ -70,6 +70,10 @@ class Authentication(object):
                                          }}})
         if self.m_args['os_auth_url'].startswith('https'):
             self.m_args['use_https'] = True
+        elif not 'use_https' in self.m_args:
+            self.m_args['use_https'] = False
+        else:
+            self.m_args['use_https'] = False
 
         strip_url = self.m_args['os_auth_url'].strip('http?s://')
         self.m_args['os_auth_url'] = strip_url
