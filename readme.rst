@@ -85,6 +85,14 @@ Here is some Basic Usage :
 Get Social
 ----------
 
+* Downloadable on PyPi_
+* Downloadable on GitHub_
+* See My `GitHub Issues Page`_ for any and all Issues or Feature requests
+
+.. _PyPi: https://pypi.python.org/pypi/bookofnova
+.. _GitHub: https://github.com/cloudnull/bookofnova
+.. _GitHub Issues Page: https://github.com/cloudnull/bookofnova/issues
+
 See ``https://github.com/cloudnull/bookofnova/issues`` for Issues or Feature requests
 
 
