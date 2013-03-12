@@ -60,6 +60,7 @@ class Authentication(object):
                 self.m_args['os_auth_url'] = known_rax[id_name]
                 self.m_args['rackspace_auth'] = True
                 self.m_args['use_https'] = True
+                self.m_args['os_region'] = id_name
             else:
                 raise NoEndPointProvided('To use "os_rax_auth" you have to use'
                                          ' one of the known Data Centers, here'
