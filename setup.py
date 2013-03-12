@@ -16,7 +16,6 @@
 # ==============================================================================
 import setuptools
 import sys
-import os
 
 if sys.version_info <= (2, 6, 0):
     sys.stderr.write("BookOfNova Presently requires Python"
@@ -28,13 +27,14 @@ with open('README') as r_file:
 
 setuptools.setup(
     name='bookofnova',
-    version='0.004',
+    version='0.005',
     author='Kevin Carter',
     author_email='kevin.carter@rackspace.com',
     description='Openstack API Library for Nova Compute',
     long_description=long_description,
     license='Apache2.0',
     packages=['bookofnova'],
+    keywords='openstack, nova, compute, api, rackspace',
     url='https://github.com/cloudnull/bookofnova.git',
     classifiers=[
         'Intended Audience :: Information Technology',
