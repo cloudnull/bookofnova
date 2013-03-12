@@ -54,7 +54,8 @@ class NovaCommands(object):
         self.m_args = m_args
         self.output = output
         if 'os_rax_auth' in self.m_args:
-            self.m_args['os_rax_auth'] = self.m_args['os_rax_auth'].upper()
+            if self.m_args['os_rax_auth']:
+                self.m_args['os_rax_auth'] = self.m_args['os_rax_auth'].upper()
         self.connection = connections.Connections(m_args=m_args,
                                                   output=output)
 

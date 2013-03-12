@@ -21,6 +21,14 @@ import json
 from bookofnova import connections, statuscodes
 
 
+class NoEndPointProvided(Exception):
+    pass
+
+
+class NoAuthURLProvided(Exception):
+    pass
+
+
 class Authentication(object):
     def __init__(self, m_args, output):
         self.m_args = m_args
@@ -30,58 +38,80 @@ class Authentication(object):
     def auth_set(self):
         """
         Set the authentication URL and STRING in JSON
-        Looks for "os_arx_auth" in m_args. if RAX Auth is not set then the
+        Looks for "os_rax_auth" in m_args. if RAX Auth is not set then the
         application will attempt to create an AUTH string based on the
-        "os_region" and "os_auth_url"
+        "os_region" and "os_auth_url which is the proper Openstack way to do it.
+        Also This section does error checking on the provided information and
+        attmpts to create the best string possible for the endpoint we will be
+        Authenticating against."
         """
-        if self.m_args['os_rax_auth'] == 'LON':
-            self.m_args['os_region'] = self.m_args['os_rax_auth']
-            self.m_args['os_auth_url'] = 'lon.identity.api.rackspacecloud.com'
-
-        elif (self.m_args['os_rax_auth'] == 'DFW' or
-              self.m_args['os_rax_auth'] == 'ORD'):
-            self.m_args['os_region'] = self.m_args['os_rax_auth']
-            self.m_args['os_auth_url'] = 'identity.api.rackspacecloud.com'
-
+        # Look for Known RAX Endpoints
+        known_rax = {'LON': 'lon.identity.api.rackspacecloud.com',
+                     'DFW': 'identity.api.rackspacecloud.com',
+                     'ORD': 'identity.api.rackspacecloud.com'}
+        if 'os_password' in self.m_args and self.m_args['os_password']:
+            self.m_args['os_apikey'] = self.m_args['os_password']
         else:
-            if not self.m_args['os_region']:
-                self.output('FAIL\t: You have to specify'
-                                 ' a Region along with an Auth URL')
-            elif not self.m_args['os_auth_url']:
-                self.output('FAIL\t: You have to specify an Auth URL'
-                                     ' along with the Region')
+            self.m_args['os_password'] = self.m_args['os_apikey']
 
-        if 'os_rax_auth' in self.m_args:
-            if self.m_args['os_rax_auth']:
+        if 'os_rax_auth' in self.m_args and self.m_args['os_rax_auth']:
+            id_name = self.m_args['os_rax_auth'].upper()
+            if id_name in known_rax:
+                self.m_args['os_auth_url'] = known_rax[id_name]
                 self.m_args['rackspace_auth'] = True
                 self.m_args['use_https'] = True
-        else:
+            else:
+                raise NoEndPointProvided('To use "os_rax_auth" you have to use'
+                                         ' one of the known Data Centers, here'
+                                         ' are your choices. "%s"'
+                                         % known_rax)
+
+        elif 'os_auth_url' in self.m_args:
+            # Look at the URL For RAX Endpoints
+            temp_url = self.m_args['os_auth_url']
+            temp_url = temp_url.strip('http?s://').split('/')
+            temp_url = temp_url[0]
+            if temp_url.endswith('rackspacecloud.com'):
+                self.m_args['rackspace_auth'] = True
+                self.m_args['use_https'] = True
+
+            # Check to see if we are using HTTPS
             if self.m_args['os_auth_url'].startswith('https'):
                 self.m_args['use_https'] = True
-            elif 'use_https' not in self.m_args:
-                self.m_args['use_https'] = False
             else:
                 self.m_args['use_https'] = False
 
-        if self.m_args['os_apikey'] and self.m_args['os_rax_auth']:
-            jsonreq = json.dumps({'auth':
-                {'RAX-KSKEY:apiKeyCredentials':
-                    {'username': self.m_args['os_user'],
-                     'apiKey': self.m_args['os_apikey']
-                     }}})
         else:
+            # Make sure you provided a region and endpoint
+            if not self.m_args['os_region']:
+                raise NoEndPointProvided('FAIL\t: You have to specify'
+                                         ' a Region along with an Auth URL')
+            elif not self.m_args['os_auth_url']:
+                raise NoAuthURLProvided('FAIL\t: You have to specify an Auth'
+                                        ' URL along with the Region')
+            if not 'use_https' in self.m_args:
+                self.m_args['use_https'] = False
+
+        if ('rackspace_auth' in self.m_args and
+            self.m_args['rackspace_auth']):
+            jsonreq = json.dumps({'auth': {'RAX-KSKEY:apiKeyCredentials':
+                {'username': self.m_args['os_user'],
+                 'apiKey': self.m_args['os_apikey']
+                 }}})
+        else:
+            if not 'os_tenant' in self.m_args or not self.m_args['os_tenant']:
+                self.m_args['os_tenant'] = self.m_args['os_user']
             jsonreq = json.dumps({'auth':
                 {"tenantName": self.m_args['os_tenant'],
                  'passwordCredentials': {'username': self.m_args['os_user'],
                                          'password': self.m_args['os_password']
                                          }}})
 
+        # Sanitise the URL
         strip_url = self.m_args['os_auth_url'].strip('http?s://')
         self.m_args['os_auth_url'] = strip_url
-
         url_data = self.m_args['os_auth_url'].split('/')
         self.m_args['url'] = url_data[0]
-
         return self.m_args, jsonreq
 
     def os_auth(self):
@@ -93,7 +123,6 @@ class Authentication(object):
         data = self.auth_set()
         self.m_args = data[0]
         jsonreq = data[1]
-        self.output(self.m_args)
         self.connection = connections.Connections(m_args=self.m_args,
                                                   output=self.output)
         conn = self.connection._conn(self.m_args['url'])
@@ -126,8 +155,10 @@ class Authentication(object):
             readresp = resp.read()
             conn.close()
             json_response = json.loads(readresp)
+            self.output(readresp)
             self.parse_auth(json_response=json_response,
                             resp=resp)
+            self.m_args['nova_resp'] = json_response
             return self.m_args
 
     def parse_auth(self, json_response, resp):
@@ -141,19 +172,32 @@ class Authentication(object):
         uniform as I loop through them.
         """
         try:
+            # List of Known Regions
+            known_services = ['CLOUDSERVERSOPENSTACK',
+                              'NOVA']
+
             # loop through the Service Catalog
             for service in json_response['access']['serviceCatalog']:
-                if service['name'].upper() == 'CLOUDSERVERSOPENSTACK':
+                if service['name'].upper() in known_services:
                     for endpoint in service['endpoints']:
-                        if endpoint['region'] == self.m_args['os_region']:
-                            rax_cs = endpoint['publicURL']
-                            self.m_args['nova_endpoint'] = rax_cs
+                        user_region = self.m_args['os_region'].upper()
+                        cata_region = endpoint['region'].upper()
+                        if cata_region == user_region:
+                            r_cs = endpoint['publicURL']
+                            self.m_args['nova_endpoint'] = r_cs
 
-                if service['name'].upper() == 'NOVA':
-                    for endpoint in service['endpoints']:
-                        if endpoint['region'] == self.m_args['os_region']:
-                            os_nova = endpoint['publicURL']
-                            self.m_args['nova_endpoint'] = os_nova
+            if not 'nova_endpoint' in self.m_args:
+                ep_d = json_response['access']['serviceCatalog']
+                ep_data = []
+                for _ep in ep_d:
+                    ep_data.append(_ep['name'])
+                raise NoEndPointProvided('Authentication was OK, though we'
+                                         ' were not able to find an'
+                                         ' application to use in our Nova'
+                                         ' ComputeLib. Use Debug to see what is'
+                                         ' in your service catalog. Here are'
+                                         ' your available Services "%s"'
+                                         % ep_data)
 
             # Set the token and Tenant ID
             tenant_id = json_response['access']['token']['tenant']['id']
