@@ -49,12 +49,14 @@ class Authentication(object):
         known_rax = {'LON': 'lon.identity.api.rackspacecloud.com',
                      'DFW': 'identity.api.rackspacecloud.com',
                      'ORD': 'identity.api.rackspacecloud.com'}
-        if 'os_password' in self.m_args and self.m_args['os_password']:
+        if ('os_password' in self.m_args and
+            self.m_args['os_password']):
             self.m_args['os_apikey'] = self.m_args['os_password']
         else:
             self.m_args['os_password'] = self.m_args['os_apikey']
 
-        if 'os_rax_auth' in self.m_args and self.m_args['os_rax_auth']:
+        if ('os_rax_auth' in self.m_args and
+            self.m_args['os_rax_auth']):
             id_name = self.m_args['os_rax_auth'].upper()
             if id_name in known_rax:
                 self.m_args['os_auth_url'] = known_rax[id_name]
@@ -67,7 +69,8 @@ class Authentication(object):
                                          ' are your choices. "%s"'
                                          % known_rax)
 
-        elif 'os_auth_url' in self.m_args:
+        elif ('os_auth_url' in self.m_args and
+              self.m_args['os_auth_url']):
             # Look at the URL For RAX Endpoints
             temp_url = self.m_args['os_auth_url']
             temp_url = temp_url.strip('http?s://').split('/')
@@ -75,6 +78,8 @@ class Authentication(object):
             if temp_url.endswith('rackspacecloud.com'):
                 self.m_args['rackspace_auth'] = True
                 self.m_args['use_https'] = True
+            else:
+                self.m_args['rackspace_auth'] = False
 
             # Check to see if we are using HTTPS
             if self.m_args['os_auth_url'].startswith('https'):
