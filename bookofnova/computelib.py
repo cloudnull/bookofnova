@@ -172,7 +172,8 @@ class NovaCommands(object):
                            "flavorRef": pay_load['flavorRef']}}
 
         # if a Rackspace Cloud Server add the default Networks
-        if self.m_args['rackspace_auth']:
+        if ('rackspace_auth' in self.m_args and
+            self.m_args['rackspace_auth']):
             rax_pri = '11111111-1111-1111-1111-111111111111'
             prinet = {'uuid': rax_pri}
             rax_pub = '00000000-0000-0000-0000-000000000000'
