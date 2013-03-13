@@ -19,7 +19,7 @@ import traceback
 import tempfile
 
 # Local Imports
-from bookofnova import connections, statuscodes
+from bookofnova import connections
 
 
 class MissingValues(Exception):
@@ -213,9 +213,9 @@ class NovaCommands(object):
                         try:
                             with open(loc_src) as enc_src:
                                 e_s = enc_src.read()
-                                encode = e_s.encode('base64')
+                                _encode = e_s.encode('base64')
                                 inj_construct = {'path': dst.encode('utf-8'),
-                                                 'contents': encode}
+                                                 'contents': _encode}
                                 personality.append(inj_construct)
                         except Exception, exp:
                             self.output(traceback.format_exc())
