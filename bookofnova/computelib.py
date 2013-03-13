@@ -213,10 +213,10 @@ class NovaCommands(object):
                         try:
                             with open(loc_src) as enc_src:
                                 e_s = enc_src.read()
-                                _encode = e_s.encode('base64')
-                                inj_construct = {'path': dst.encode('utf-8'),
-                                                 'contents': _encode}
-                                personality.append(inj_construct)
+                            _encode = e_s.encode('base64')
+                            inj_construct = {'path': dst.encode('utf-8'),
+                                             'contents': _encode}
+                            personality.append(inj_construct)
                         except Exception, exp:
                             self.output(traceback.format_exc())
                             self.output(exp)
