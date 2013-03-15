@@ -19,7 +19,7 @@ import traceback
 import tempfile
 
 # Local Imports
-from bookofnova import connections
+from bookofnova import connections, authentication
 
 
 class MissingValues(Exception):
@@ -58,6 +58,16 @@ class NovaCommands(object):
                 self.m_args['os_rax_auth'] = self.m_args['os_rax_auth'].upper()
         self.connection = connections.Connections(m_args=m_args,
                                                   output=output)
+
+    def re_authenticate(self):
+        """
+        Updates the users token
+        """
+        self.output('Re - Authenticating')
+        auth = authentication.Authentication(self.m_args,
+                                             self.output)
+        data = auth.os_auth()
+        self.m_args['token'] = data['token']
 
     def key_pair(self, key_name=None, key_path=tempfile.gettempdir()):
         """
