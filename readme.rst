@@ -61,6 +61,7 @@ Here is some Basic Usage :
 
 
     .. code-block:: python
+
         from bookofnova import computelib, connections        
         # Tell the book of Nova that you are ready
         nova = computelib.NovaCommands(m_args=m_args,
@@ -68,8 +69,8 @@ Here is some Basic Usage :
                                        log_level='info',
                                        output=None)
 
-        # Authenticate Against the Nova API
-        nova.auth()
+	# Authenticate Against the Nova API
+	nova.auth()
         
         # Using Nova to show a list of all Instances
         servers = nova.server_list()
