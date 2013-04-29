@@ -31,6 +31,9 @@ class NoAuthURLProvided(Exception):
 
 class Authentication(object):
     def __init__(self, m_args, output):
+        """
+        Perform Nova Authentication
+        """
         self.m_args = m_args
         self.output = output
         self.result_exception = statuscodes.ResultExceptions(self.output)

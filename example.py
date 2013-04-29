@@ -13,6 +13,7 @@ m_args = {"os_user": 'YOU',
           "os_tenant": None,
           "os_region": None,
           "os_version": 'v2.0'}
+
 # Tell the book of Nova that you are ready
 nova = computelib.NovaCommands(m_args=m_args,
                                log_file=None,

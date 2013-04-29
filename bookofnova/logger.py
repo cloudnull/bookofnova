@@ -87,6 +87,10 @@ def return_logfile(filename):
 
 
 def load_in(log_file=None, log_level='info', output=None):
+    """
+    Load in the log handler. If output is not None, systen will use the default
+    Log facility.
+    """
     if not output:
         if log_file:
             _log_file = return_logfile(filename=log_file)

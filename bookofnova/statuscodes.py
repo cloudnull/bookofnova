@@ -18,7 +18,7 @@
 class ResultExceptions(object):
     def __init__(self, output):
         """
-        Check the response codes that we get
+        Check the response codes that we get back from the API
         """
         self.output = output
 

@@ -30,8 +30,7 @@ __urlinformation__ = ("https://github.com/cloudnull/bookofnova,"
 V_N = ('%s' % __version__)
 
 # The Version and Information for the application
-VINFO = ('External Monitoring %(version)s, '
-         'developed by %(author)s, '
+VINFO = ('External Monitoring %(version)s, developed by %(author)s, '
          'FYI : %(copyright)s'
          % {'version': __version__,
             'author': __author__,

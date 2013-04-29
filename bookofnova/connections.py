@@ -82,6 +82,9 @@ class Connections(object):
             self.m_args['nova_resp'] = data
 
     def _delete_action(self, path, args):
+        """
+        Delete Request.
+        """
         _cp = self._conn_prep(path,
                               endpoint_uri=args['nova_endpoint'])
         path, headers, url, conn = _cp
@@ -104,6 +107,9 @@ class Connections(object):
         return args
 
     def _get_action(self, path, args):
+        """
+        Get Request
+        """
         _cp = self._conn_prep(path,
                               endpoint_uri=args['nova_endpoint'])
         path, headers, url, conn = _cp
@@ -130,6 +136,9 @@ class Connections(object):
             return args
 
     def _post_action(self, path, args, body):
+        """
+        Post Request
+        """
         _cp = self._conn_prep(path,
                               endpoint_uri=args['nova_endpoint'])
         path, headers, url, conn = _cp

@@ -126,6 +126,9 @@ class NovaCommands(object):
         return self.m_args
 
     def key_pair_list(self):
+        """
+        List available Key Pairs
+        """
         self.output.info('Providing a Key Pair List')
         path = '/os-keypairs'
         action = self.connection._get_action(path=path, args=self.m_args)
@@ -133,6 +136,9 @@ class NovaCommands(object):
         return self.m_args
 
     def list_quantum_networks(self):
+        """
+        List any network that we may have access to via Quantum
+        """
         self.output.info('Checking to see if the network you specified Exists')
         path = '/os-networksv2'
         action = self.connection._get_action(path=path, args=self.m_args)
