@@ -69,6 +69,7 @@ class NovaCommands(object):
         """
         Authenticate Against the NOVA API
         """
+        self.output.info('Authenticating')
         auth = authentication.Authentication(m_args=self.m_args,
                                              output=self.output)
         data = auth.os_auth()
@@ -78,6 +79,7 @@ class NovaCommands(object):
         """
         Updates the users token
         """
+        self.output.info('Re-Authenticating')
         self.auth()
 
     def key_pair(self, key_name=None, key_path=tempfile.gettempdir()):
