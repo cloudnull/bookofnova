@@ -31,47 +31,33 @@ class ResultExceptions(object):
         """
         Non-20x status code responses.
         """
-        if resp.status == 401:
-            self.output('MESSAGE\t: Forced Re-authentication is happening.'
-                        ' %s' % (resp.status))
-            self.output('NOVA-API AUTH FAILURE ==> REQUEST: %s %s %s %s'
-                        % (resp.status,
-                           resp.reason,
-                           jsonreq,
-                           authurl))
-            return self._get_headers(resp)
         if resp.status == 400 or resp.status == 503:
-            self.output('Status = %s, It looks like Shits Broken ==> %s'
-                        % (resp.status, jsonreq))
+            self.output.critical('STATUS %s:\tIt looks like Shits Broken ==> %s'
+                                 % (resp.status, jsonreq))
             return self._get_headers(resp)
         elif resp.status == 401:
-            self.output('status = %s, You are not Authorized to perform this'
-                        'action. Please check Credentials ==> %s'
-                        % (resp.status, jsonreq))
+            self.output.warn('STATUS %s:\tYou are not Authorized to perform'
+                             ' this action. Please check Credentials ==> %s.'
+                             ' Also this ERROR could have been caused by an'
+                             ' expired Token.' % (resp.status, jsonreq))
             return self._get_headers(resp)
         elif resp.status == 409 or resp.status == 404:
-            self.output('Status = %s Server was not found,'
-                        ' likely Gone'
-                        % (resp.status))
+            self.output.warn('STATUS %s:\tServer was not found, likely Gone'
+                             % (resp.status))
             return self._get_headers(resp)
         elif resp.status == 413:
             d_i = self._get_headers(resp)
-            self.output('The System encountered an API limitation : %s'
-                        % d_i)
+            self.output.critical('STATUS %s:\tThe System encountered an API'
+                                 ' limitation : %s' % (resp.status, d_i))
             return d_i
         elif resp.status == 302 or resp.status == 500:
-            self.output('NOVA-API REDIRECT -> REQUEST: %s %s %s %s'
-                        'Make your request using a different Protocol.  IE'
-                        'HTTPS or HTTP.'
-                        % (resp.status,
-                           resp.reason,
-                           jsonreq,
-                           authurl))
+            self.output.critical('STATUS %s:\tNOVA-API REDIRECT =>'
+                                 ' REQUEST: %s %s %s Make your request using a'
+                                 ' different Protocol. (IE: HTTPS or HTTP)'
+                                 % (resp.status, resp.reason, jsonreq, authurl))
             return self._get_headers(resp)
         elif resp.status >= 300 <= 600:
-            self.output('NOVA-API FAILURE -> REQUEST: %s %s %s %s'
-                        % (resp.status,
-                           resp.reason,
-                           jsonreq,
-                           authurl))
+            self.output.error('STATUS %s:\tNOVA-API FAILURE =='
+                              ' > REQUEST: %s %s %s'
+                              % (resp.status, resp.reason, jsonreq, authurl))
             return self._get_headers(resp)

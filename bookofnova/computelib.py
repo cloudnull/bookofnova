@@ -19,7 +19,8 @@ import traceback
 import tempfile
 
 # Local Imports
-from bookofnova import connections, authentication
+
+from bookofnova import connections, authentication, logger
 
 
 class MissingValues(Exception):
@@ -27,9 +28,7 @@ class MissingValues(Exception):
 
 
 class NovaCommands(object):
-    def __init__(self,
-                 m_args,
-                 output):
+    def __init__(self, m_args, log_file=None, log_level='info', output=None):
         """
         Arguments passed through the system are looked at in a dictionary format
         Here is an example argument set needed for operation :
@@ -48,11 +47,26 @@ class NovaCommands(object):
         available. Functions available are dependant on your service catalog,
         provider and version of OpenStack.
 
-        "output" is provided so that you can also use a logging facility or
-        you can set output to "print".
+        By Default the system will attempt to use the python standard logging
+        module. The default behaviour is to log everything to stdout. If you
+        provide a "log_file" the system will log to the file provided, if the
+        file does not exist the system will attempt to create it. The default
+        log level is "info" which can be overridden. If "output" is used the
+        system will ignore the log level and simply use what is provided, which
+        should be some form of logging system. This is useful when using your
+        own logging methods.
         """
         self.m_args = m_args
-        self.output = output
+        if output:
+            self.output = output
+        else:
+            if log_file:
+                log_file = logger.return_logfile(filename=log_file)
+                self.output = logger.logger_setup(log_level=log_level,
+                                                  log_file=log_file)
+            else:
+                self.output = logger.logger_setup(log_level=log_level)
+
         if 'os_rax_auth' in self.m_args:
             if self.m_args['os_rax_auth']:
                 self.m_args['os_rax_auth'] = self.m_args['os_rax_auth'].upper()
@@ -63,7 +77,7 @@ class NovaCommands(object):
         """
         Updates the users token
         """
-        self.output('Re - Authenticating')
+        self.output.info('Providing Re-Authentication')
         auth = authentication.Authentication(self.m_args,
                                              self.output)
         data = auth.os_auth()
@@ -73,7 +87,7 @@ class NovaCommands(object):
         """
         Build a Nova Key pair to use on boot for an instance.
         """
-        self.output('Creating our Key File')
+        self.output.info('Creating a Key File')
         path = '/os-keypairs'
         key_loc = '%s%s%s' % (key_path, os.sep, key_name)
         b_d = {"keypair": {"name": key_name}}
@@ -84,13 +98,13 @@ class NovaCommands(object):
         key_data = action['nova_resp']
         try:
             if 'keypair' in key_data:
-                self.output('Key file has been Placed in "%s"' % key_loc)
+                self.output.info('Key file has been Placed in "%s"' % key_loc)
                 with open(key_loc, 'w+') as key_f:
                     key_f.write(key_data['keypair']['private_key'])
                     os.chmod(key_loc, 0400)
             return self.m_args
-        except Exception, exp:
-            self.output(exp)
+        except Exception:
+            self.output.error(traceback.format_exc())
             self.m_args['nova_status'] = False
             return self.m_args
         return self.m_args
@@ -103,7 +117,7 @@ class NovaCommands(object):
         name of the key that you would like to Delete, as represented by
         "key_name".
         """
-        self.output('Destroying our Key File')
+        self.output.info('Destroying our Key File')
         path = '/os-keypairs/%s' % key_name
         action = self.connection._delete_action(path=path, args=self.m_args)
         self.m_args = action
@@ -113,13 +127,14 @@ class NovaCommands(object):
         return self.m_args
 
     def key_pair_list(self):
+        self.output.info('Providing a Key Pair List')
         path = '/os-keypairs'
         action = self.connection._get_action(path=path, args=self.m_args)
         self.m_args = action
         return self.m_args
 
     def list_quantum_networks(self):
-        self.output('Checking to see if the network you specified Exists')
+        self.output.info('Checking to see if the network you specified Exists')
         path = '/os-networksv2'
         action = self.connection._get_action(path=path, args=self.m_args)
         self.m_args = action
@@ -169,6 +184,8 @@ class NovaCommands(object):
         need to create a list of dictionaries where the "key" is the metadata
         key and the "value" is the metadata value.
         """
+        self.output.debug('Building Boot Configuration, pay load == %s'
+                          % pay_load)
         if not 'name' in pay_load:
             raise MissingValues('No Name given when attempting to boot')
         elif not 'imageRef' in pay_load:
@@ -227,9 +244,8 @@ class NovaCommands(object):
                             inj_construct = {'path': dst.encode('utf-8'),
                                              'contents': _encode}
                             personality.append(inj_construct)
-                        except Exception, exp:
-                            self.output(traceback.format_exc())
-                            self.output(exp)
+                        except Exception:
+                            self.output.critical(traceback.format_exc())
 
         # Use an SSH key on boot for an instance
         if 'key_name' in pay_load:
@@ -257,7 +273,7 @@ class NovaCommands(object):
 
         build_body = json.dumps(body)
         if self.m_args['os_verbose']:
-            self.output('BUILD JSON DUMP\t:%s' % build_body)
+            self.output.debug('BUILD JSON DUMP\t:%s' % build_body)
         return build_body
 
     def booter(self, payload):
@@ -282,6 +298,8 @@ class NovaCommands(object):
         In order to confirm or revert a resize you will need to have the
         "server_id".
         """
+        self.output.info('Performing confirmation on resize for %s,'
+                         ' Confirm == %s' % (server_id, confirm))
         if confirm:
             payload = {"confirmResize": None}
         else:
@@ -304,6 +322,8 @@ class NovaCommands(object):
         In order to resize a server you will need to have the "server_id" as
         well as the "flavor" size that you want to use.
         """
+        self.output.info('Performing a resize on %s, New size == %s'
+                         % (server_id, flavor))
         flavors = self.flavor_list()
         for flv in flavors['nova_resp']['flavors']:
             if flv['id'] == flavor:
@@ -327,6 +347,8 @@ class NovaCommands(object):
         This requires that the user, YOU, to provide a server UUID as
         "server_id".
         """
+        self.output.info('Performing a reboot on %s, Hard Reboot == %s'
+                         % (server_id, hard_reboot))
         if hard_reboot:
             payload = {"reboot": {"type": 'HARD'}}
         else:
@@ -345,6 +367,7 @@ class NovaCommands(object):
         List out all of the servers that are in the REGION you specified when
         you authenticated.
         """
+        self.output.info('Providing a list of Servers')
         path = '/servers'
         action = self.connection._get_action(path=path, args=self.m_args)
         self.m_args = action
@@ -355,6 +378,7 @@ class NovaCommands(object):
         List out all of the servers that are in the REGION you specified when
         you authenticated. 
         """
+        self.output.info('Providing a Detailed List of Servers')
         path = '/servers/detail'
         action = self.connection._get_action(path=path, args=self.m_args)
         self.m_args = action
@@ -368,6 +392,8 @@ class NovaCommands(object):
         This requires that the user, YOU, to provide a server UUID as
         "server_id".
         """
+        self.output.info('Providing Server Information on Instance ID %s'
+                         % server_id)
         path = '/servers/%s' % server_id
         action = self.connection._get_action(path=path, args=self.m_args)
         self.m_args = action
@@ -379,10 +405,34 @@ class NovaCommands(object):
         Openstack API. Note that this only lists public images, there may be
         images that were made private which will not be shown with this command.
         """
+        self.output.info('Providing an Image List')
         path = '/images'
         action = self.connection._get_action(path=path, args=self.m_args)
         self.m_args = action
         return self.m_args
+
+    def image_create(self, server_id, img_name, meta_data=None):
+        """
+        Create an Image of an Instance. Requires Instance UUID and the name of
+        the Image you wish to create. Optionally you can add meta data to the
+        image as well.
+        """
+        self.output.info('Creating an Image of Server ID %s => Image Name %s'
+                         % (server_id, img_name))
+        path = '/servers/%s/action' % server_id
+        if meta_data:
+            pay_load = {"createImage": {"name": img_name,
+                                        "metadata": meta_data}}
+        else:
+            pay_load = {"createImage": {"name": img_name}}
+
+        action = self.connection._post_action(path=path,
+                                              args=self.m_args,
+                                              body=pay_load)
+        action = self.connection._get_action(path=path, args=self.m_args)
+        self.m_args = action
+        return self.m_args
+
 
     def flavor_list_detail(self):
         """
@@ -391,6 +441,7 @@ class NovaCommands(object):
         flavors that were made private which will not be shown with this
         command.
         """
+        self.output.info('Providing a Detailed Flavor List')
         path = '/flavors/detail'
         action = self.connection._get_action(path=path, args=self.m_args)
         self.m_args = action
@@ -403,6 +454,7 @@ class NovaCommands(object):
         flavors that were made private which will not be shown with this
         command.
         """
+        self.output.info('Providing a list of Flavors')
         path = '/flavors'
         action = self.connection._get_action(path=path, args=self.m_args)
         self.m_args = action
@@ -415,7 +467,7 @@ class NovaCommands(object):
         This requires that the user, YOU, to provide a server UUID as
         "server_id".
         """
-        self.output('Destroying Server ID "%s"' % server_id)
+        self.output.info('Destroying Server ID "%s"' % server_id)
         path = '/servers/%s' % server_id
         action = self.connection._delete_action(path=path, args=self.m_args)
         self.m_args = action

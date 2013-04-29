@@ -26,7 +26,7 @@ class Connections(object):
         """
         self.output = output
         self.m_args = m_args
-        self.resp_exp = statuscodes.ResultExceptions(output)
+        self.resp_exp = statuscodes.ResultExceptions(self.output)
 
     def _conn(self, url):
         """
@@ -55,10 +55,10 @@ class Connections(object):
         url_data = endpoint.split('/')
         url = url_data[0]
         c_path = '/%s%s' % ('/'.join(url_data[1:]), path)
-        self.output('connecting to the API for %s' % path)
+        self.output.info('Connecting to the API for %s' % path)
         self.conn = self._conn(url)
         if self.m_args['os_verbose']:
-            self.output('\n%s %s\n' % (headers, c_path))
+            self.output.debug('%s %s\n' % (headers, c_path))
         return c_path, headers, url, self.conn
 
     def check_status(self, resp, headers, authurl, jsonreq=None):
@@ -84,10 +84,7 @@ class Connections(object):
     def _delete_action(self, path, args):
         _cp = self._conn_prep(path,
                               endpoint_uri=args['nova_endpoint'])
-        path = _cp[0]
-        headers = _cp[1]
-        url = _cp[2]
-        conn = _cp[3]
+        path, headers, url, conn = _cp
 
         conn.request('DELETE', path, headers=headers)
         resp = conn.getresponse()
@@ -109,10 +106,7 @@ class Connections(object):
     def _get_action(self, path, args):
         _cp = self._conn_prep(path,
                               endpoint_uri=args['nova_endpoint'])
-        path = _cp[0]
-        headers = _cp[1]
-        url = _cp[2]
-        conn = _cp[3]
+        path, headers, url, conn = _cp
 
         conn.request('GET', path, headers=headers)
         resp = conn.getresponse()
@@ -138,10 +132,7 @@ class Connections(object):
     def _post_action(self, path, args, body):
         _cp = self._conn_prep(path,
                               endpoint_uri=args['nova_endpoint'])
-        path = _cp[0]
-        headers = _cp[1]
-        url = _cp[2]
-        conn = _cp[3]
+        path, headers, url, conn = _cp
 
         conn.request('POST', path, body, headers=headers)
         resp = conn.getresponse()
@@ -163,6 +154,6 @@ class Connections(object):
             json_response = read_resp
 
         if args['os_verbose']:
-            self.output(json.dumps(json_response, indent=2))
+            self.output.debug(json.dumps(json_response, indent=2))
         args['nova_resp'] = json_response
         return args

@@ -134,8 +134,8 @@ class Authentication(object):
         conn = self.connection._conn(self.m_args['url'])
 
         if self.m_args['os_verbose']:
-            self.output('%s\n' % self.m_args)
-            self.output('REQUEST\t: %s\n' % jsonreq)
+            self.output.debug('REQUEST:\t %s\nARGS:\t%s'
+                              % (jsonreq, self.m_args))
 
         headers = {'Content-Type': 'application/json'}
         tokenurl = '/%s/tokens' % self.m_args['os_version']
@@ -144,7 +144,7 @@ class Authentication(object):
         try:
             resp = conn.getresponse()
         except httplib.BadStatusLine, exp:
-            self.output(exp)
+            self.output.error(exp)
             return False
 
         # Set the status Codes
@@ -161,7 +161,7 @@ class Authentication(object):
             readresp = resp.read()
             conn.close()
             json_response = json.loads(readresp)
-            self.output(readresp)
+            self.output.info(readresp)
             self.parse_auth(json_response=json_response,
                             resp=resp)
             self.m_args['nova_resp'] = json_response
@@ -210,8 +210,7 @@ class Authentication(object):
             self.m_args['tenantid'] = tenant_id
             self.m_args['token'] = json_response['access']['token']['id']
         except (Exception, UserWarning):
-            self.output('Shits Borke Son...')
-            self.output(traceback.format_exc())
+            self.output.error(traceback.format_exc())
 
         # If this is a Rackspace Account set the Rackspace_auth flag
         if 'rackspace_auth' in self.m_args:
@@ -223,5 +222,4 @@ class Authentication(object):
                         self.m_args['rackspace_auth'] = False
 
         if self.m_args['os_verbose']:
-            self.output(json.dumps(json_response, indent=2))
-            self.output(self.m_args)
+            self.output.debug(json.dumps(json_response))
