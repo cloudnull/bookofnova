@@ -1,8 +1,7 @@
-# NOTE: the future import is not needed, though makes output nice when using
-# print instead of logging
+# NOTE: logging goes to standard out by default,
+# The Output Varible is not needed unless you want to overide.
 
-from __future__ import print_function
-from bookofnova import authentication, computelib, connections
+from bookofnova import computelib, connections
 
 # Everything in this dictionary is a string, fill in the needed values.
 m_args = {"os_user": 'YOU',
@@ -14,18 +13,14 @@ m_args = {"os_user": 'YOU',
           "os_tenant": None,
           "os_region": None,
           "os_version": 'v2.0'}
-
-# Set output / Logging
-output = print
-
-# Authentication with Nova
-auth = authentication.Authentication(m_args=m_args,
-                                     output=output)
-service_cat = auth.os_auth()
-
 # Tell the book of Nova that you are ready
 nova = computelib.NovaCommands(m_args=m_args,
-                               output=output)
+                               log_file=None,
+                               log_level='info',
+                               output=None)
+
+# Authenticate Against the Nova API
+nova.auth()
 
 # Using Nova to show a list of all Instances
 servers = nova.server_list()
