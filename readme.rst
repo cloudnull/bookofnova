@@ -14,6 +14,10 @@ General Overview
 This is a VERY Simple library which I have found useful in projects where I needed access to the Openstack NOVA Compute API and I did not want to bother with novaclient.
 
 
+*NOTICE*: 
+  If you had installed a previous version of "the book of nova" then you will need to retool the application when it comes to authentication and logging. By Default the application now uses the standard Python Logging Module, and will print out all of the logging information to the console as you access the library. If you want to log to a file simply change the "log_file" variable when you load in "computelib.NovaCommands" class. The "log_file" variable will attempt to place the log file in "/var/log" if you are running with elevated privileges, otherwise the log file will be in the users working directory. You may also change the log level for more/less output by changing the "log_level" variable. Lastly, if you have a log handler setup you can override the default logger entirely by simple using the "output" variable. To use the output variable you will need to pre-set the some logging facility which supports [error, info, debug].
+
+
 Functions of the Library :
   * Do Openstack Nova Things
   * Presently only supports Openstack Nova Compute, but does so for both Vanilla Openstack and the Rackspace Open Cloud
@@ -57,22 +61,15 @@ Here is some Basic Usage :
 
 
     .. code-block:: python
-
-        # The "__future__" import is not required, but its nice for the example
-        from __future__ import print_function
-        from bookofnova import authentication, computelib, connections
-        
-        # Set output / Logging
-        output = print
-        
-        # Authentication with Nova
-        auth = authentication.Authentication(m_args=m_args,
-                                             output=output)
-        service_cat = auth.os_auth()
-        
+        from bookofnova import computelib, connections        
         # Tell the book of Nova that you are ready
         nova = computelib.NovaCommands(m_args=m_args,
-                                       output=output)
+                                       log_file=None,
+                                       log_level='info',
+                                       output=None)
+
+        # Authenticate Against the Nova API
+        nova.auth()
         
         # Using Nova to show a list of all Instances
         servers = nova.server_list()
