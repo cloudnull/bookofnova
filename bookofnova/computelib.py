@@ -19,7 +19,6 @@ import traceback
 import tempfile
 
 # Local Imports
-
 from bookofnova import connections, authentication, logger
 
 
@@ -57,31 +56,29 @@ class NovaCommands(object):
         own logging methods.
         """
         self.m_args = m_args
-        if output:
-            self.output = output
-        else:
-            if log_file:
-                log_file = logger.return_logfile(filename=log_file)
-                self.output = logger.logger_setup(log_level=log_level,
-                                                  log_file=log_file)
-            else:
-                self.output = logger.logger_setup(log_level=log_level)
-
+        self.output = logger.load_in(log_file=log_file,
+                                     log_level=log_level,
+                                     output=output)
         if 'os_rax_auth' in self.m_args:
             if self.m_args['os_rax_auth']:
                 self.m_args['os_rax_auth'] = self.m_args['os_rax_auth'].upper()
         self.connection = connections.Connections(m_args=m_args,
-                                                  output=output)
+                                                  output=self.output)
+
+    def auth(self):
+        """
+        Authenticate Against the NOVA API
+        """
+        auth = authentication.Authentication(m_args=self.m_args,
+                                             output=self.output)
+        data = auth.os_auth()
+        self.m_args['token'] = data['token']
 
     def re_authenticate(self):
         """
         Updates the users token
         """
-        self.output.info('Providing Re-Authentication')
-        auth = authentication.Authentication(self.m_args,
-                                             self.output)
-        data = auth.os_auth()
-        self.m_args['token'] = data['token']
+        self.auth()
 
     def key_pair(self, key_name=None, key_path=tempfile.gettempdir()):
         """

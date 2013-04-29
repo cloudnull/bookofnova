@@ -18,7 +18,7 @@ import traceback
 import json
 
 # Local Import
-from bookofnova import connections, statuscodes
+from bookofnova import connections, statuscodes, logger
 
 
 class NoEndPointProvided(Exception):
@@ -33,7 +33,7 @@ class Authentication(object):
     def __init__(self, m_args, output):
         self.m_args = m_args
         self.output = output
-        self.result_exception = statuscodes.ResultExceptions(output)
+        self.result_exception = statuscodes.ResultExceptions(self.output)
 
     def auth_set(self):
         """
@@ -123,7 +123,7 @@ class Authentication(object):
     def os_auth(self):
         """
         Set a DC Endpoint and Authentication URL for the Open Stack environment
-        Authentication can handle both HTTPS and HTTP Connections. 
+        Authentication can handle both HTTPS and HTTP Connections.
         """
         # Set Auth Sting and URL
         data = self.auth_set()
@@ -161,7 +161,7 @@ class Authentication(object):
             readresp = resp.read()
             conn.close()
             json_response = json.loads(readresp)
-            self.output.info(readresp)
+            self.output.debug(readresp)
             self.parse_auth(json_response=json_response,
                             resp=resp)
             self.m_args['nova_resp'] = json_response
