@@ -74,6 +74,7 @@ class NovaCommands(object):
                                              output=self.output)
         data = auth.os_auth()
         self.m_args['token'] = data['token']
+        return data
 
     def re_authenticate(self):
         """
