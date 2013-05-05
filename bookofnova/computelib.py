@@ -418,7 +418,7 @@ class NovaCommands(object):
         self.m_args = action
         return self.m_args
 
-    def image_list(self):
+    def image_list_detail(self):
         """
         List out all of the images that you have available to you in the
         Openstack API. Note that this only lists public images, there may be
