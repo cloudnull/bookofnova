@@ -448,6 +448,20 @@ class NovaCommands(object):
         action = self.connection._post_action(path=path,
                                               args=self.m_args,
                                               body=pay_load)
+        self.m_args = action
+        return self.m_args
+
+    def image_info(self, image_id):
+        """
+        This method will allow you to see detailed information on a specified
+        image.
+
+        This requires that the user, YOU, to provide a image UUID as
+        "image_id".
+        """
+        self.output.info('Providing Server Information on image ID %s'
+                         % image_id)
+        path = '/images/%s' % image_id
         action = self.connection._get_action(path=path, args=self.m_args)
         self.m_args = action
         return self.m_args
