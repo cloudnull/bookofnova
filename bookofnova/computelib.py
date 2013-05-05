@@ -413,7 +413,7 @@ class NovaCommands(object):
         this command.
         """
         self.output.info('Providing an Image List')
-        path = '/images/detail'
+        path = '/images'
         action = self.connection._get_action(path=path, args=self.m_args)
         self.m_args = action
         return self.m_args
@@ -425,7 +425,7 @@ class NovaCommands(object):
         images that were made private which will not be shown with this command.
         """
         self.output.info('Providing an Image List')
-        path = '/images'
+        path = '/images/detail'
         action = self.connection._get_action(path=path, args=self.m_args)
         self.m_args = action
         return self.m_args
