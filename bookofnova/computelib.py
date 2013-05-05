@@ -408,6 +408,19 @@ class NovaCommands(object):
     def image_list(self):
         """
         List out all of the images that you have available to you in the
+        Openstack API in detail. Note that this only lists public images, there
+        may be images that were made private which will not be shown with
+        this command.
+        """
+        self.output.info('Providing an Image List')
+        path = '/images/detail'
+        action = self.connection._get_action(path=path, args=self.m_args)
+        self.m_args = action
+        return self.m_args
+
+    def image_list(self):
+        """
+        List out all of the images that you have available to you in the
         Openstack API. Note that this only lists public images, there may be
         images that were made private which will not be shown with this command.
         """
@@ -438,7 +451,6 @@ class NovaCommands(object):
         action = self.connection._get_action(path=path, args=self.m_args)
         self.m_args = action
         return self.m_args
-
 
     def flavor_list_detail(self):
         """
