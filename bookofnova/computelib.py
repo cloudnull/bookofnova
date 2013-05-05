@@ -440,11 +440,10 @@ class NovaCommands(object):
                          % (server_id, img_name))
         path = '/servers/%s/action' % server_id
         if meta_data:
-            pay_load = {"createImage": {"name": img_name,
-                                        "metadata": meta_data}}
+            _pl = {"createImage": {"name": img_name, "metadata": meta_data}}
         else:
-            pay_load = {"createImage": {"name": img_name}}
-
+            _pl = {"createImage": {"name": img_name}}
+        pay_load = json.dumps(_pl)
         action = self.connection._post_action(path=path,
                                               args=self.m_args,
                                               body=pay_load)
