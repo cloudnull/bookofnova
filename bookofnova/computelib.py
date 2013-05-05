@@ -465,6 +465,19 @@ class NovaCommands(object):
         self.m_args = action
         return self.m_args
 
+    def image_nuker(self, image_id):
+        """
+        Delete an image.
+
+        This requires that the user, YOU, to provide a server UUID as
+        "image_id".
+        """
+        self.output.info('Destroying Server ID "%s"' % image_id)
+        path = '/images/%s' % image_id
+        action = self.connection._delete_action(path=path, args=self.m_args)
+        self.m_args = action
+        return self.m_args
+
     def flavor_list_detail(self):
         """
         List out all of the flavors that you have available to you in the
