@@ -458,7 +458,7 @@ class NovaCommands(object):
         This requires that the user, YOU, to provide a image UUID as
         "image_id".
         """
-        self.output.info('Providing Server Information on image ID %s'
+        self.output.info('Providing Information on image ID %s'
                          % image_id)
         path = '/images/%s' % image_id
         action = self.connection._get_action(path=path, args=self.m_args)
@@ -472,7 +472,7 @@ class NovaCommands(object):
         This requires that the user, YOU, to provide a server UUID as
         "image_id".
         """
-        self.output.info('Destroying Server ID "%s"' % image_id)
+        self.output.info('Destroying Image ID "%s"' % image_id)
         path = '/images/%s' % image_id
         action = self.connection._delete_action(path=path, args=self.m_args)
         self.m_args = action
