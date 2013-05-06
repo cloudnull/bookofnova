@@ -42,7 +42,7 @@ class ResultExceptions(object):
                              ' expired Token.' % (resp.status, jsonreq))
             return self._get_headers(resp)
         elif resp.status == 409 or resp.status == 404:
-            self.output.warn('STATUS %s:\tServer was not found, likely Gone'
+            self.output.warn('STATUS\t%s: URI Not found, likely Gone'
                              % (resp.status))
             return self._get_headers(resp)
         elif resp.status == 413:
